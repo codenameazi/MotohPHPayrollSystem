@@ -1,15 +1,21 @@
 package utils;
 
+/**
+ * Utility class to compute the employee's share of the SSS contribution.
+ */
 public class SSSCalculator {
 
     /**
-     * Computes the employee's share of the SSS contribution based on salary.
+     * Computes the employee's SSS contribution based on their salary.
      *
      * @param salary The gross monthly salary of the employee.
      * @return The corresponding SSS contribution amount.
      */
-    public static double getSSSContribution(double salary) {
-        // SSS Contribution Table: {Salary Bracket, Employee Share}
+    public static double calculateSSS(double salary) {
+        if (salary <= 0) {
+            return 0.0;
+        }
+
         double[][] sssBrackets = {
             {3250, 135}, {3750, 157.50}, {4250, 180}, {4750, 202.50}, {5250, 225},
             {5750, 247.50}, {6250, 270}, {6750, 292.50}, {7250, 315}, {7750, 337.50},
@@ -23,14 +29,11 @@ public class SSSCalculator {
             {Double.MAX_VALUE, 1125} // Max contribution cap
         };
 
-        // Find the correct contribution bracket
         for (double[] bracket : sssBrackets) {
             if (salary < bracket[0]) {
-                return bracket[1]; // Employee share only
+                return bracket[1];
             }
         }
-        
-        // Default to the maximum contribution
-        return 1125; 
+        return 1125.0;
     }
 }

@@ -11,9 +11,13 @@ public class TaxCalculator {
      * @param taxableIncome The taxable salary after deductions.
      * @return The computed withholding tax.
      */
-    public static double computeWithholdingTax(double taxableIncome) {
+    public static double calculateTax(double taxableIncome) {
+        if (taxableIncome <= 0) {
+            return 0.0;
+        }
+
         if (taxableIncome <= 20832) {
-            return 0.0;  // No tax for incomes up to PHP 20,832
+            return 0.0;
         } else if (taxableIncome <= 33333) {
             return (taxableIncome - 20833) * 0.20;
         } else if (taxableIncome <= 66667) {

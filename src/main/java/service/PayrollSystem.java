@@ -1,11 +1,9 @@
 package service;
 
+import utils.DeductionsCalculator;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import model.Employee;
-import utils.PhilHealthCalculator;
-import utils.SSSCalculator;
-import utils.TaxCalculator;
 import utils.PayslipGenerator;
 
 import java.io.*;
@@ -21,7 +19,7 @@ public class PayrollSystem {
 
     // ✅ No-Argument Constructor
     public PayrollSystem() {
-        // Initialize the employee list
+        // Initialize employee list
     }
 
     public void loadEmployeeData(String filePath) throws IOException, CsvException {
@@ -38,7 +36,7 @@ public class PayrollSystem {
                     continue;
                 }
 
-                if (line.length < 19) { // Adjusted to fit correct CSV structure
+                if (line.length < 19) { // Ensure proper CSV format
                     LOGGER.log(Level.WARNING, "⚠ Invalid data format: {0}", String.join("|", line));
                     continue;
                 }
@@ -48,11 +46,8 @@ public class PayrollSystem {
                     String lastName = line[1].trim();
                     String firstName = line[2].trim();
                     String position = line[10].trim();
-                    String basicSalaryStr = line[13].trim();
-                    String hourlyRateStr = line[18].trim(); // Column S: Hourly Rate
-
-                    double basicSalary = parseSalary(basicSalaryStr);
-                    double hourlyRate = parseSalary(hourlyRateStr);
+                    double basicSalary = parseSalary(line[13].trim()); // Column N: Basic Salary
+                    double hourlyRate = parseSalary(line[18].trim()); // Column S: Hourly Rate
 
                     employees.add(new Employee(
                         employeeNumber, lastName, firstName, "", "", "",
@@ -102,6 +97,39 @@ public class PayrollSystem {
     }
 
     public void processPayroll(Employee emp, double hoursWorked) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (emp == null) {
+            System.out.println("❌ Error: Employee data is missing.");
+            return;
+        }
+
+        double basicSalary = emp.getBasicSalary();
+        double hourlyRate = emp.getHourlyRate();
+        double grossSalary = (basicSalary > 0) ? basicSalary : (hoursWorked * hourlyRate);
+
+        // Compute deductions
+        double sssDeduction = DeductionsCalculator.calculateSSS(grossSalary);
+        double philHealthDeduction = DeductionsCalculator.calculatePhilHealth(grossSalary);
+        double pagIbigDeduction = DeductionsCalculator.calculatePagIbig(grossSalary);
+        double taxableIncome = grossSalary - (sssDeduction + philHealthDeduction + pagIbigDeduction);
+        double taxDeduction = DeductionsCalculator.calculateTax(taxableIncome);
+
+        double totalDeductions = sssDeduction + philHealthDeduction + pagIbigDeduction + taxDeduction;
+        double netSalary = grossSalary - totalDeductions;
+
+        // Display payroll details
+        System.out.println("\n📑 Payroll Summary for " + emp.getFirstName() + " " + emp.getLastName());
+        System.out.println("---------------------------------------------");
+        System.out.printf("💰 Gross Salary: ₱%.2f%n", grossSalary);
+        System.out.printf("🛡 SSS Deduction: ₱%.2f%n", sssDeduction);
+        System.out.printf("🏥 PhilHealth Deduction: ₱%.2f%n", philHealthDeduction);
+        System.out.printf("🏠 Pag-IBIG Deduction: ₱%.2f%n", pagIbigDeduction);
+        System.out.printf("📝 Taxable Income: ₱%.2f%n", taxableIncome);
+        System.out.printf("📜 Tax Deduction: ₱%.2f%n", taxDeduction);
+        System.out.printf("📉 Total Deductions: ₱%.2f%n", totalDeductions);
+        System.out.printf("💵 Net Salary: ₱%.2f%n", netSalary);
+        System.out.println("---------------------------------------------");
+
+        // ✅ Fixed Payslip Generation (passing 8 parameters)
+        PayslipGenerator.generatePayslip(emp, hoursWorked, grossSalary, sssDeduction, philHealthDeduction, pagIbigDeduction, taxDeduction, netSalary);
     }
 }

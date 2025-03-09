@@ -1,9 +1,7 @@
 package service;
 
+import utils.DeductionsCalculator;
 import model.Employee;
-import utils.SSSCalculator;
-import utils.PhilHealthCalculator;
-import utils.TaxCalculator;
 
 public class PayrollCalculator {
 
@@ -14,36 +12,36 @@ public class PayrollCalculator {
     public double computeNetSalary(Employee employee, double hoursWorked) {
         double grossSalary = computeGrossSalary(employee, hoursWorked);
 
-        // Compute government deductions
-        double sss = SSSCalculator.getSSSContribution(grossSalary);
-        double philHealth = PhilHealthCalculator.getPhilHealthContribution(grossSalary);
-        double pagIbig = Math.min(grossSalary * 0.02, 100); // Pag-IBIG maxes at PHP 100
-
+        // Compute all deductions using DeductionsCalculator
+        double sss = DeductionsCalculator.calculateSSS(grossSalary);
+        double philHealth = DeductionsCalculator.calculatePhilHealth(grossSalary);
+        double pagIbig = DeductionsCalculator.calculatePagIbig(grossSalary);
+        
         // Compute taxable income AFTER deductions
         double taxableIncome = grossSalary - (sss + philHealth + pagIbig);
-        double tax = TaxCalculator.computeWithholdingTax(taxableIncome);
+        double tax = DeductionsCalculator.calculateTax(taxableIncome);
 
         return grossSalary - (sss + philHealth + pagIbig + tax);
     }
 
     public void displayPayroll(Employee employee, double hoursWorked) {
         double grossSalary = computeGrossSalary(employee, hoursWorked);
-        double sss = SSSCalculator.getSSSContribution(grossSalary);
-        double philHealth = PhilHealthCalculator.getPhilHealthContribution(grossSalary);
-        double pagIbig = Math.min(grossSalary * 0.02, 100);
+        double sss = DeductionsCalculator.calculateSSS(grossSalary);
+        double philHealth = DeductionsCalculator.calculatePhilHealth(grossSalary);
+        double pagIbig = DeductionsCalculator.calculatePagIbig(grossSalary);
         double taxableIncome = grossSalary - (sss + philHealth + pagIbig);
-        double tax = TaxCalculator.computeWithholdingTax(taxableIncome);
+        double tax = DeductionsCalculator.calculateTax(taxableIncome);
         double netSalary = grossSalary - (sss + philHealth + pagIbig + tax);
 
-        System.out.println("\n📌 Payroll Summary for " + employee.getFullName());
+        System.out.println("\n📌 Payroll Summary for " + employee.getFirstName() + " " + employee.getLastName());
         System.out.println("-------------------------------------------------");
-        System.out.println("Gross Salary: PHP " + String.format("%.2f", grossSalary));
-        System.out.println("SSS Deduction: PHP " + String.format("%.2f", sss));
-        System.out.println("PhilHealth Deduction: PHP " + String.format("%.2f", philHealth));
-        System.out.println("Pag-IBIG Deduction: PHP " + String.format("%.2f", pagIbig));
-        System.out.println("Taxable Income: PHP " + String.format("%.2f", taxableIncome));
-        System.out.println("Withholding Tax: PHP " + String.format("%.2f", tax));
-        System.out.println("Net Salary: PHP " + String.format("%.2f", netSalary));
+        System.out.printf("Gross Salary: PHP %.2f%n", grossSalary);
+        System.out.printf("SSS Deduction: PHP %.2f%n", sss);
+        System.out.printf("PhilHealth Deduction: PHP %.2f%n", philHealth);
+        System.out.printf("Pag-IBIG Deduction: PHP %.2f%n", pagIbig);
+        System.out.printf("Taxable Income: PHP %.2f%n", taxableIncome);
+        System.out.printf("Withholding Tax: PHP %.2f%n", tax);
+        System.out.printf("Net Salary: PHP %.2f%n", netSalary);
         System.out.println("-------------------------------------------------\n");
     }
 }
