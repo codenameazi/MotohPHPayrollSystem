@@ -1,0 +1,10 @@
+utils/DeductionsCalculator.class
+utils/SSSCalculator.class
+com/motorph/motorphpayrollsystem/MotorPhPayrollSystem.class
+utils/PhilHealthCalculator.class
+service/PayrollSystem.class
+utils/TaxCalculator.class
+service/PayrollCalculator.class
+utils/PayslipGenerator.class
+com/main/Main.class
+model/Employee.class
